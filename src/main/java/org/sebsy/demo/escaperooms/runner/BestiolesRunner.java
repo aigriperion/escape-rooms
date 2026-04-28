@@ -16,8 +16,6 @@ public class BestiolesRunner implements CommandLineRunner {
     private final AnimalRepository animalRepository;
     private final SpeciesRepository speciesRepository;
 
-    // Injection par constructeur : Spring détecte les dépendances et les injecte
-    // automatiquement (pas besoin de @Autowired depuis Spring 4.3 sur un constructeur unique)
     public BestiolesRunner(AnimalRepository animalRepository,
                            SpeciesRepository speciesRepository) {
         this.animalRepository = animalRepository;
@@ -26,7 +24,7 @@ public class BestiolesRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("\n========== TESTS REPOSITORIES BESTIOLES ==========\n");
+        System.out.println("\nTESTS REPOSITORIES BESTIOLES\n");
 
         // 1. findAll : afficher tous les animaux existants
         System.out.println("--- 1. findAll() : tous les animaux ---");
@@ -36,7 +34,6 @@ public class BestiolesRunner implements CommandLineRunner {
 
         // 2. save : créer un nouvel animal lié à une espèce existante
         System.out.println("\n--- 2. save() : création d'un nouvel animal ---");
-        // On récupère l'espèce "Chat" (id=1) déjà présente en BDD
         Species chat = speciesRepository.findById(1)
                 .orElseThrow(() -> new RuntimeException("Espèce 'Chat' introuvable"));
 
@@ -47,8 +44,8 @@ public class BestiolesRunner implements CommandLineRunner {
         nouveau.setSpecies(chat);
 
         Animal sauvegarde = animalRepository.save(nouveau);
-        System.out.println("  Animal créé avec l'id : " + sauvegarde.getId());
-        System.out.println("  Détails : " + sauvegarde);
+        System.out.println("Animal créé avec l'id : " + sauvegarde.getId());
+        System.out.println("Détails : " + sauvegarde);
 
         // 3. findById : retrouver l'animal créé
         System.out.println("\n--- 3. findById() ---");
@@ -61,14 +58,14 @@ public class BestiolesRunner implements CommandLineRunner {
         // 4. delete : supprimer l'animal et vérifier
         System.out.println("\n--- 4. delete() ---");
         long avant = animalRepository.count();
-        System.out.println("  Nombre d'animaux avant suppression : " + avant);
+        System.out.println("Nombre d'animaux avant suppression : " + avant);
 
         animalRepository.delete(sauvegarde);
 
         long apres = animalRepository.count();
-        System.out.println("  Nombre d'animaux après suppression : " + apres);
-        System.out.println("  -> " + (avant - apres) + " animal supprimé");
+        System.out.println("Nombre d'animaux après suppression : " + apres);
+        System.out.println("-> " + (avant - apres) + " animal supprimé");
 
-        System.out.println("\n========== FIN DES TESTS BESTIOLES ==========\n");
+        System.out.println("\nFIN DES TESTS BESTIOLES\n");
     }
 }
