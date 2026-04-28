@@ -6,6 +6,7 @@ import org.sebsy.demo.escaperooms.repository.AnimalRepository;
 import org.sebsy.demo.escaperooms.repository.SpeciesRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class BestiolesRunner implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         System.out.println("\nTESTS REPOSITORIES BESTIOLES\n");
 
@@ -65,6 +67,15 @@ public class BestiolesRunner implements CommandLineRunner {
         long apres = animalRepository.count();
         System.out.println("Nombre d'animaux après suppression : " + apres);
         System.out.println("-> " + (avant - apres) + " animal supprimé");
+
+        // 5. Navigation inverse via mappedBy
+        System.out.println("\n--- 5. Navigation inverse : animaux par espèce ---");
+        List<Species> especes = speciesRepository.findAll();
+        for (Species esp : especes) {
+            System.out.println("  " + esp.getCommonName() + " : "
+                    + esp.getAnimals().size() + " animal(aux)");
+            esp.getAnimals().forEach(a -> System.out.println("    - " + a.getName()));
+        }
 
         System.out.println("\nFIN DES TESTS BESTIOLES\n");
     }

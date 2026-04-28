@@ -19,7 +19,7 @@ public class Animal {
     @Column(nullable = false)
     private String sex;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "species_id", nullable = false)
     private Species species;
 

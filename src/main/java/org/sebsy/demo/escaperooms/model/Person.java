@@ -29,7 +29,7 @@ public class Person {
     @Column(nullable = false, columnDefinition = "tinyint")
     private Boolean active = true;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany()
     @JoinTable(
             name = "person_animals",
             joinColumns = @JoinColumn(name = "person_id"),
@@ -37,7 +37,7 @@ public class Person {
     )
     private Set<Animal> animals = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany()
     @JoinTable(
             name = "person_role",
             joinColumns = @JoinColumn(name = "person_id"),
