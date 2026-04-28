@@ -1,8 +1,12 @@
 package org.sebsy.demo.escaperooms.runner;
 
 import org.sebsy.demo.escaperooms.model.Animal;
+import org.sebsy.demo.escaperooms.model.Person;
+import org.sebsy.demo.escaperooms.model.Role;
 import org.sebsy.demo.escaperooms.model.Species;
 import org.sebsy.demo.escaperooms.repository.AnimalRepository;
+import org.sebsy.demo.escaperooms.repository.PersonRepository;
+import org.sebsy.demo.escaperooms.repository.RoleRepository;
 import org.sebsy.demo.escaperooms.repository.SpeciesRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -16,11 +20,17 @@ public class BestiolesRunner implements CommandLineRunner {
 
     private final AnimalRepository animalRepository;
     private final SpeciesRepository speciesRepository;
+    private final PersonRepository personRepository;
+    private final RoleRepository roleRepository;
 
     public BestiolesRunner(AnimalRepository animalRepository,
-                           SpeciesRepository speciesRepository) {
+                           SpeciesRepository speciesRepository,
+                           PersonRepository personRepository,
+                           RoleRepository roleRepository) {
         this.animalRepository = animalRepository;
         this.speciesRepository = speciesRepository;
+        this.personRepository = personRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -75,6 +85,37 @@ public class BestiolesRunner implements CommandLineRunner {
             System.out.println("  " + esp.getCommonName() + " : "
                     + esp.getAnimals().size() + " animal(aux)");
             esp.getAnimals().forEach(a -> System.out.println("    - " + a.getName()));
+        }
+
+        // 6. Animal -> Persons : pour chaque animal, qui l'a adopté ?
+        System.out.println("--- 6. Animal -> Persons (mappedBy = \"animals\") ---");
+        List<Animal> animauxNav = animalRepository.findAll();
+        for (Animal a : animauxNav) {
+            System.out.println("  " + a.getName() + " est lié à "
+                    + a.getPersons().size() + " personne(s) :");
+            a.getPersons().forEach(p ->
+                    System.out.println("    - " + p.getFirstname() + " " + p.getLastname()));
+        }
+
+        // 7. Role -> Persons : pour chaque rôle, qui le possède ?
+        System.out.println("\n--- 7. Role -> Persons (mappedBy = \"roles\") ---");
+        List<Role> roles = roleRepository.findAll();
+        for (Role r : roles) {
+            System.out.println("  Rôle '" + r.getLabel() + "' porté par "
+                    + r.getPersons().size() + " personne(s) :");
+            r.getPersons().forEach(p ->
+                    System.out.println("    - " + p.getLogin()));
+        }
+
+        // 8. Vérification de cohérence : Person.animals <-> Animal.persons
+        System.out.println("\n--- 8. Cohérence bidirectionnelle ---");
+        List<Person> personnes = personRepository.findAll();
+        for (Person p : personnes) {
+            for (Animal a : p.getAnimals()) {
+                boolean coherent = a.getPersons().contains(p);
+                System.out.println("  " + p.getLogin() + " <-> " + a.getName()
+                        + " : " + (coherent ? "OK" : "INCOHÉRENT"));
+            }
         }
 
         System.out.println("\nFIN DES TESTS BESTIOLES\n");

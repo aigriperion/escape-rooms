@@ -2,6 +2,9 @@ package org.sebsy.demo.escaperooms.model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "animal")
 public class Animal {
@@ -23,6 +26,9 @@ public class Animal {
     @JoinColumn(name = "species_id", nullable = false)
     private Species species;
 
+    @ManyToMany(mappedBy = "animals")
+    private Set<Person> persons = new HashSet<>();
+
     // Getters & setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -38,6 +44,9 @@ public class Animal {
 
     public Species getSpecies() { return species; }
     public void setSpecies(Species species) { this.species = species; }
+
+    public Set<Person> getPersons() { return persons; }
+    public void setPersons(Set<Person> persons) { this.persons = persons; }
 
     @Override
     public String toString() {
