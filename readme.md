@@ -1,29 +1,49 @@
-# TP Spring Core – IoC & DI
+# Bestioles — TP Spring Data JPA
 
-Exercice 5 : Escape Rooms
+Exercice de manipulation d'**entités JPA** et de **repositories Spring Data** autour d'un petit modèle animalier.
 
-L’objectif est de mettre en application les concepts d’injection de dépendance et d’inversion de contrôle avec Spring.
+## Modèle de données
 
-- La classes `EscapeRoomsApplication` et `Startup` ne doivent pas être modifiées.
-- Toutes	les	classes	des	packages `org.sebsy.demo.escaperooms.controller` et `org.sebsy.demo.escaperooms.bll` doivent être déclarées comme des beans/composants Spring. 
-  - Vous pouvez uniquement ajouter ou modifier les annotations de Spring (`@Component`, `@Service`, `@Profile` et `@Autowired`)
-    - Il y a 3 profiles possibles pour l’application :
-      - `passage`  un chemin valide pour accéder aux chambres
-      - `trap`  vous êtes dans une impasse
-      - `treasure`  vous accédez au trésor
-    - Copier la ligne suivante dans application.properties :
-      ```editorconfig
-        spring.profiles.active=passage,treasure
-      ```
-- Vous devez compléter toutes les classes annotées `@Service` avec un des profils. Ils sont tous utilisés
+- `Species` — espèce animale (ex. chat, chien). `@OneToMany` vers `Animal` (`mappedBy = "species"`).
+- `Animal` — animal individuel rattaché à une espèce. `@ManyToMany` vers `Person` (`mappedBy = "animals"`).
+- `Person` — personne pouvant adopter plusieurs animaux et porter plusieurs rôles.
+- `Role` — rôle applicatif. `@ManyToMany` vers `Person` (`mappedBy = "roles"`).
 
-L’exécution de la classe `EscapeRoomsApplication`, doit afficher les traces suivantes dans la console :
+Les côtés inverses des associations sont déclarés avec `mappedBy` ; le côté propriétaire porte la `@JoinTable` / `@JoinColumn`.
 
-```editorconfig
-Entrez dans la salle 1 :
-Bravo, vous avez trouvé la première salle !
-Entrez dans la salle 2 :
-Bravo, vous avez trouvé la deuxième salle ! 
-Entrez dans la salle du trésor :
-Gagné, vous avez trouvé la salle du trésor !
+## Pré-requis
+
+- Java 17
+- MariaDB en local avec la base `bestioles` peuplée du schéma et de quelques données.
+
+Configuration dans `src/main/resources/application.properties` :
+
+```properties
+spring.datasource.url=jdbc:mariadb://localhost:3306/bestioles
+spring.datasource.username=esaip
+spring.datasource.password=esaip
+spring.jpa.hibernate.ddl-auto=validate
 ```
+
+## Exécution
+
+```bash
+./mvnw spring-boot:run
+```
+
+Au démarrage, `BestiolesRunner` exécute une série de tests sur les repositories :
+
+1. `findAll()` sur les animaux.
+2. `save()` d'un nouvel animal lié à une espèce existante.
+3. `findById()` pour le retrouver.
+4. `delete()` puis vérification par `count()`.
+5. Navigation inverse `Species → Animal` via `mappedBy`.
+6. Navigation `Animal → Person` via la `@ManyToMany` bidirectionnelle.
+7. Navigation `Role → Person` via `mappedBy`.
+8. Vérification de cohérence bidirectionnelle `Person.animals` ↔ `Animal.persons`.
+
+## Structure du projet
+
+- `model/` — entités JPA (`Animal`, `Species`, `Person`, `Role`).
+- `repository/` — interfaces `JpaRepository` correspondantes.
+- `runner/BestiolesRunner.java` — `CommandLineRunner` qui exerce les repositories au démarrage.
